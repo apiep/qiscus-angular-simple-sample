@@ -1,0 +1,12 @@
+<p>qiscus works!</p>
+
+<div>room: {{room?.id || 'Loading...'}}</div>
+
+<div>
+    comments:
+    <ul style="height:400px;overflow:auto">
+        <li *ngFor="let comment of comments">
+            {{comment.message}}
+        </li>
+    </ul>
+</div>
