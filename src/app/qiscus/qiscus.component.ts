@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { QiscusService, Comment, Selected } from '../qiscus.service';
-import { Subscription } from 'rxjs';
-import { tap } from 'rxjs/operators'
+import { Subscription, from } from 'rxjs';
+import { tap, take, retry } from 'rxjs/operators'
 
 @Component({
   selector: 'app-qiscus',
@@ -53,10 +53,10 @@ export class QiscusComponent implements OnInit {
 
 
     this.newCommentSubscription = this.qiscusService.newComment$
-    .pipe(tap((c) => console.log('got comment:', c)))
-    .subscribe((comment: any) => {
-      this._comments[comment.unique_temp_id] = comment
-    })
+      .pipe(tap((c) => console.log('got comment:', c)))
+      .subscribe((comment: any) => {
+        this._comments[comment.unique_temp_id] = comment
+      })
 
   }
 
@@ -66,14 +66,17 @@ export class QiscusComponent implements OnInit {
 
 
   async sendMessage(text: string): Promise<Comment> {
-    return await this.qiscusService.sendMessage({
+    return from(this.qiscusService.sendMessage({
       message: text,
       roomId: this.room.id,
-      extras: null,
+      extras: { sender_username: 'annonymous' },
       payload: null,
       type: 'text',
       uniqueId: String(Date.now()),
-    });
+    })).pipe(
+      take(1),
+      retry(2),
+    ).toPromise()
   }
 
 }
