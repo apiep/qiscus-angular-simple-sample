@@ -13,6 +13,21 @@ export class QiscusComponent implements OnInit {
   room?: Selected;
   newCommentSubscription: Subscription;
   _comments: Record<string, Comment> = {};
+  newText: string = ''
+  isSubmitting: boolean = false
+
+  async onSubmit(event) {
+    event.preventDefault()
+    const text = this.newText
+
+    this.isSubmitting = true
+    let comment = await this.sendMessage(text) as any;
+
+    this.newText = ''
+    this._comments[comment.unique_temp_id] = comment;
+    this.isSubmitting = false;
+    event.target.focus()
+  }
 
   get comments(): Comment[] {
     return Object.values(this._comments)
@@ -50,8 +65,8 @@ export class QiscusComponent implements OnInit {
   }
 
 
-  sendMessage(text: string): void {
-    this.qiscusService.sendMessage({
+  async sendMessage(text: string): Promise<Comment> {
+    return await this.qiscusService.sendMessage({
       message: text,
       roomId: this.room.id,
       extras: null,

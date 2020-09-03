@@ -9,4 +9,13 @@
             {{comment.message}}
         </li>
     </ul>
+
+    <form id="add-message" (submit)="onSubmit($event)">
+        <input type="text" name="comment"
+            [value]="newText"
+            (change)="newText = $event.target.value"
+            [disabled]="isSubmitting"
+            autofocus>
+    </form>
+
 </div>
